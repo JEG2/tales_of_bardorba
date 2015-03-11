@@ -15,8 +15,9 @@ module TalesOfBardorba
     end
 
     def flash
-      enemy.blinded_for = rand(1..3)
-      enemy.hit = 1
+      player.apply_status_effect(BlindedStatusEffect.new)
+      # enemy.blinded_for = rand(1..3)
+      # enemy.hit = 1
       puts "You send sparks from your finger tips at #{enemy.name}.\nThe #{enemy.name} is temporarily blinded."
     end
     
@@ -36,7 +37,8 @@ module TalesOfBardorba
     def poison
       bio = rand(2)
       if bio == 0
-        enemy.poisoned = true
+        player.apply_status_effect(PoisenedStatusEffect.new)
+        # enemy.poisoned = true
         puts "#{enemy.name} is poisoned and is slowly losing health."
       else
         puts "#{enemy.name} does not become poisoned."
@@ -44,7 +46,12 @@ module TalesOfBardorba
     end
 
     def antidote
-      player.poisoned = false
+      player.status_effects.each do |status_effect|
+        if status_effect.is_a?(PoisonedStatusEffect)
+          player.remove_status_effect(status_effect)
+        end
+      end
+      # player.poisoned = false
       puts "#{player.name} calls upon the favor of the gods to cure poisoning."
     end
 

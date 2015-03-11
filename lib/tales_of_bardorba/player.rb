@@ -29,15 +29,26 @@ module TalesOfBardorba
     end
 
     attr_accessor :hp, :hit, :defense, :encounter_spells, :encounter_abilities, :level, :experience, :stunned_for, :blinded_for, :sleep, :sleep_marker, :poison, :afraid
-    attr_reader :name, :profession, :magic, :feats, :hpmax, :at_will_available, :encounter_available
+    attr_reader :name, :status_effects, :profession, :magic, :feats, :hpmax, :at_will_available, :encounter_available
 
+    # Extract the following three methods and the reader above
+    # to a Character superclass for Player and Enemy
     def status_effects
-      @stunned_for      = 0
-      @blinded_for      = 0
-      @sleep            = false
-      @poison           = false
-      @afraid           = false
-      @sleep_marker     = @hp
+      @status_effects   = [ ]
+      # @stunned_for      = 0
+      # @blinded_for      = 0
+      # @sleep            = false
+      # @poison           = false
+      # @afraid           = false
+      # @sleep_marker     = @hp
+    end
+
+    def apply_status_effect(status_effect)
+      status_effects << status_effect
+    end
+
+    def remove_status_effect(status_effect)
+      status_effects.delete(status_effect)
     end
 
     def assign_starting_stats(job)

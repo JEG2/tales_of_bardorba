@@ -40,6 +40,9 @@ module TalesOfBardorba
     end
 
     def resolve_player_round(input)
+      player.status_effects.each do |status_effect|
+        status_effect.apply_before_turn(player)
+      end
       resolve_fright_round(player)
       if player.afraid?
         run_away(player, enemy)
@@ -47,16 +50,21 @@ module TalesOfBardorba
         resolve_player_status_effects(input)
         resolve_poison_round(player)
       end
+      player.status_effects.each do |status_effect|
+        status_effect.apply_after_turn(player)
+      end
     end
 
     def resolve_player_status_effects(input)
-      if player.stunned_for > 0
-        resolve_stunned_round(player)
-      elsif player.blinded_for > 0
-        resolve_blinded_round(player, enemy, input)
-      elsif player.asleep?
-        resolve_sleep_round(player)
-        puts "#{player.name} is asleep."
+      if player.status_effect.all? { |status_effect| status_effect.can_act? }
+        # ...
+      # if player.stunned_for > 0
+      #   resolve_stunned_round(player)
+      # elsif player.blinded_for > 0
+      #   resolve_blinded_round(player, enemy, input)
+      # elsif player.asleep?
+      #   resolve_sleep_round(player)
+      #   puts "#{player.name} is asleep."
       else
         perform_player_action(input)
       end
@@ -150,7 +158,11 @@ module TalesOfBardorba
     end
 
     def hit?(attacker, target)
-      attack = rand(1..(attacker.hit - target.defense))
+      modified_hit = attacker.hit #attacker.status_effects.inject(attacker.hit) { |sum, effects| sum + effect.hit_modifier(attacker) }
+      attacker.status_effects.each do |effect|
+        modified_hit += effect.hit_modifier(attacker)
+      end
+      attack = rand(1..(modified_hit - target.defense))
       if attack == nil
         return false
       else
